@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+
+    <title>Libev | 使用示例 </title>
+    <meta name="description" content>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <!-- fonts -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Ubuntu:300,400,500,600,700" rel="stylesheet">
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/style/doc.css">
+
+    <!-- favicon -->
+    <link rel="icon" href="/images/favicon.ico">
+
+    
+
+  </head>
+  <body>
+
+   <script>window.__INITIAL_STATE__ = {"page":{"title":"使用示例","path":"base/used.html"},"data":{"navigation":{"logo":{"text":"Libev 中文文档","type":"link","path":"/"},"main":[{"text":"一、介绍","type":"label"},{"text":"下载安装","type":"link","path":"base/install.html"},{"text":"使用示例","type":"link","path":"base/used.html"},{"text":"二、入门","type":"label"},{"text":"ev_loop","type":"link","path":"api/loop.html"},{"text":"ev_io","type":"link","path":"api/io.html"},{"text":"ev_timer","type":"link","path":"api/timer.html"},{"text":"ev_signal","type":"link","path":"api/signal.html"},{"text":"ev_child","type":"link","path":"api/child.html"},{"text":"ev_idle","type":"link","path":"api/idle.html"},{"text":"ev_stat","type":"link","path":"api/stat.html"},{"text":"三、示例","type":"label"}]}},"config":{"timezone":"UTC","root":"/","time_format":"HH:mm:ss","theme":"../node_modules/hexo-theme-doc","theme_config":{"swagger_ui":{"version":2,"permalinks":true,"api_explorer":true,"download":"Download specification","show_extensions":false,"deep_linking":true,"display_operation_id":false,"doc_expansion":"none"},"search":{"skip":false,"background":false,"route":"/lunr.json"},"favicon":"images/favicon.ico"}}}</script>
+
+    <div id="react-navigation-root"><div class="doc-navigation" data-reactroot><nav class="doc-navbar"><a href="/" class="doc-navbar__logo"><img src="/images/logo.png" class="doc-navbar__logo__img"><span class="doc-navbar__logo__text">Libev 中文文档</span></a><i class="dc-icon dc-icon--close dc-icon--interactive doc-sidebar-close doc-navbar__sidebar-close doc-navbar__sidebar-close--desktop"></i><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-navbar__sidebar-toggle"></i></nav><nav class="doc-sidebar"><div class="doc-sidebar__vertical-menu"><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-sidebar-toggle--primary doc-sidebar__vertical-menu__item"></i><i class="dc-icon dc-icon--search dc-icon--interactive doc-sidebar__vertical-menu__item doc-sidebar__vertical-menu__item--primary"></i></div><div class="doc-sidebar-content"><div class="doc-sidebar__search-form"></div><ul class="doc-sidebar-list"></ul></div></nav></div></div>
+    <div class="doc-content">
+  <div class="dc-page">
+    <div class="dc-card">
+      <div id="react-search-results-root"></div>
+      <div id="page-content" class="doc-formatting">
+        <h1 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 只需导入单个头文件</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// I/O 观察者</span></span><br><span class="line">ev_io stdin_watcher;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Timer 观察者</span></span><br><span class="line">ev_timer timeout_watcher;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当stdin可读的时候, 这个回调将会被触发.</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">stdin_cb</span> <span class="params">(EV_P_ ev_io *w, <span class="keyword">int</span> revents)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">puts</span> (<span class="string">"stdin ready"</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果你只需要获得一次事件, 那么需要主动停止事件观察者.</span></span><br><span class="line">  ev_io_stop (EV_A_ w);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 调用此方法后, 会让ev_run停止所有事件.</span></span><br><span class="line">  ev_break (EV_A_ EVBREAK_ALL);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当超时时间到达, 这个回调将会被触发.</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">timeout_cb</span> <span class="params">(EV_P_ ev_timer *w, <span class="keyword">int</span> revents)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">puts</span> (<span class="string">"timeout"</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 调用此方法后, 会让ev_run停止所有事件.</span></span><br><span class="line">  ev_break (EV_A_ EVBREAK_ONE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// 可以使用已定义的宏来获取默认的事件循环, 当然你也可以根据自己的需求创建指定的.</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">ev_loop</span> *<span class="title">loop</span> = <span class="title">EV_DEFAULT</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 在启动一个I/O观察者之前, 我们需要先初始化它.</span></span><br><span class="line">  ev_io_init (&amp;stdin_watcher, stdin_cb, <span class="comment">/*STDIN_FILENO*/</span> <span class="number">0</span>, EV_READ);</span><br><span class="line">  <span class="comment">// 启动后意味着观察者将在`stdin`变为可读后触发.</span></span><br><span class="line">  ev_io_start (loop, &amp;stdin_watcher);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 在启动一个I/O观察者之前, 我们需要先初始化它.</span></span><br><span class="line">  ev_timer_init (&amp;timeout_watcher, timeout_cb, <span class="number">5.5</span>, <span class="number">0.</span>);</span><br><span class="line">  <span class="comment">// 这个一次性定时器将会从启动开始后的`5.5`秒后超时触发.</span></span><br><span class="line">  ev_timer_start (loop, &amp;timeout_watcher);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 开始运行事件循环</span></span><br><span class="line">  ev_run (loop, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果事件循环退出, 那将会执行到这里.</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <div id="react-support-footer-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+
+    
+
+    <!-- js vendors -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.0/lunr.min.js"></script>
+
+    <!-- js source  -->
+    <script src="/script/doc.js"></script>
+
+    
+
+  </body>
+</html>
