@@ -32,8 +32,164 @@
     <div class="dc-card">
       <div id="react-search-results-root"></div>
       <div id="page-content" class="doc-formatting">
-        <h1 id="ev-loop"><a href="#ev-loop" class="headerlink" title="ev_loop"></a>ev_loop</h1><p>  TODO</p>
-
+        <h2 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h2><p>  <code>Libev</code>的事件循环对象由<code>struct ev_loop</code>定义.</p>
+<h3 id="1-struct-ev-loop-ev-default-loop-unsigned-int-flags"><a href="#1-struct-ev-loop-ev-default-loop-unsigned-int-flags" class="headerlink" title="1. struct ev_loop *ev_default_loop (unsigned int flags)"></a>1. struct ev_loop *ev_default_loop (unsigned int flags)</h3><p>  此函数将返回”<strong>默认</strong>“的<code>ev_loop</code>对象并初始化, 如果您不知道使用哪个事件循环, 请使用这个函数返回的<code>ev_loop</code>对象(或通过EV_DEFAULT宏).</p>
+<p>  如果<code>ev_loop</code>已经被初始化, 那么再(多)次调用都只会简单返回同一个对象(即使<code>flags</code>不同). 如果尚未初始化, 那么将会根据<code>flags</code>创建它.</p>
+<p>  注意: 此函数不是线程安全的. 所以, 要在多线程使用的时候必须加上互斥锁保证操作的原子性(虽然这种情况极少). 同时”<strong>缺省</strong>“的<code>ev_loop</code>对象才可以处理<code>ev_child</code>.</p>
+<p>  示例: </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!ev_default_loop (<span class="number">0</span>))</span><br><span class="line">  fatal (<span class="string">"could not initialise libev, bad $LIBEV_FLAGS in environment?"</span>);</span><br></pre></td></tr></table></figure>
+<p>  限制<code>Libev</code>仅使用<code>select</code>与<code>poll</code>后端同时忽略环境配置的示例:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ev_default_loop (EVBACKEND_POLL | EVBACKEND_SELECT | EVFLAG_NOENV);</span><br></pre></td></tr></table></figure>
+<p>  <code>flags</code>参数的描述会在<code>ev_loop_new</code>中会详细说明.</p>
+<h3 id="2-struct-ev-loop-ev-loop-new-unsigned-int-flags"><a href="#2-struct-ev-loop-ev-loop-new-unsigned-int-flags" class="headerlink" title="2. struct ev_loop *ev_loop_new (unsigned int flags)"></a>2. struct ev_loop *ev_loop_new (unsigned int flags)</h3><p>  此函数创建并初始化一个新的事件循环对象.如果不能初始化循环, 则返回<code>NULL</code>. 函数的调用是线程安全的. 通常我们会为每一个线程创建一个<code>ev_loop</code>, 带在主线程中使用”<strong>缺省</strong>“的<code>ev_loop</code>.</p>
+<p>  <code>flags</code>参数可以用来指定要使用的特殊行为或特定后端, 而通常情况下可以被指定为<code>0</code>(或<code>EVFLAG_AUTO</code>宏);</p>
+<p>  以下是<code>flags</code>支持的标志位:</p>
+<ul>
+<li><p><code>EVFLAG_AUTO</code> </p>
+<blockquote>
+<p>默认标志位. 如果您不知道如何选择, 那么最好选择使用它.</p>
+</blockquote>
+</li>
+<li><p><code>EVFLAG_NOENV</code></p>
+<blockquote>
+<p>默认情况下, <code>Libev</code>会在环境中寻找该环境变量并且覆盖其它特殊设置. 如果指定了此标志位, <code>Libev</code>则不会再使用<code>LIBEV_FLAGS</code>环境变量. 这个标志配置对于开发期间的性能测试、<code>Bug</code>检查等配置尤为有用.</p>
+</blockquote>
+</li>
+<li><p><code>EVFLAG_FORKCHECK</code></p>
+<blockquote>
+<p>通过设置此标志位让<code>Libev</code>在每次事件迭代中检查<code>fork</code>; 通常使用的是<code>getpid</code>来进行检查, 这可能会因为内核(系统)的不同对迭代速度有些许影响. 优点则是无需再为<code>fork</code>检查担心.</p>
+</blockquote>
+<blockquote>
+<p>注意: 此标志不能被<code>LIBEV_FLAGS</code>重写或指定.</p>
+</blockquote>
+</li>
+<li><p><code>EVFLAG_NOINOTIFY</code></p>
+<blockquote>
+<p>当指定了此标志位, <code>ev_stat</code>不再尝试使用<code>inotify</code>来进行检查. 启用<code>inotify</code>则可以让<code>ev_stat</code>保存<code>inotify</code>的句柄(<code>handle</code>), 这通常能减少内部消耗.</p>
+</blockquote>
+</li>
+<li><p><code>EVFLAG_SIGNALFD</code></p>
+<blockquote>
+<p>当指定了此标志位, <code>Libev将</code>使用<code>signalfd</code>的<code>API</code>来优化<code>ev_signal</code>实现信号处理. 这能串行化处理信号数据, 简化线程间的信号处理. 默认情况下<code>signalfd</code>不会被使用, 因为这会改变你的信号掩码.</p>
+</blockquote>
+</li>
+<li><p><code>EVFLAG_NOSIGMASK</code></p>
+<blockquote>
+<p>当指定了此标志位, <code>Libev</code>将避免修改信号掩码. 这意味着当你想接收信号时它们不会被阻塞.</p>
+</blockquote>
+<blockquote>
+<p>当您希望自己处理信号或希望在特定的线程中处理信号, 它将变得非常有用.</p>
+</blockquote>
+</li>
+<li><p><code>EVFLAG_NOTIMERFD</code></p>
+<blockquote>
+<p>当指定了此标志位, <code>Libev</code>将不会使用<code>timerfd</code>来检查<strong>时间跳跃</strong>. 虽然<code>Libev</code>仍能检查<strong>时间跳跃</strong>, 但是这会需要花费更多的时间.<br>当前会在第一个周期定时器创建的时候开始使用<code>timerfd</code>, 如果因为各种原因失败, 则会退回到其它方法中完成.</p>
+</blockquote>
+</li>
+<li><p><code>EVBACKEND_SELECT</code> (<code>value 1, portable select backend</code>)</p>
+<blockquote>
+<p>使用标准的<code>select(2)</code>后端, 但是<code>Libev</code>会尝试自己调整<code>fd_set</code>以达到避免<code>fds</code>数量限制. 如果失败, 那么使用<code>select</code>后端对<code>fd</code>的监控数量会非常低且它非常低效(<code>O(highest_fd)</code>). 不过, 在监视少量文件描述符事件的后端中它通常是最快的.</p>
+</blockquote>
+<blockquote>
+<p>此后端将<code>EV_READ</code>映射到<code>readfds</code>结合上, 将<code>EV_WRITE</code>映射到<code>writefds</code>集合.</p>
+</blockquote>
+</li>
+<li><p><code>EVBACKEND_POLL</code> (<code>value 2, poll backend</code>)</p>
+<blockquote>
+<p>使用标准的<code>poll(2)</code>后端, 它的复杂度比<code>select</code>更高, 但是能解决<code>fd_set</code>的稀疏数组与<code>fds</code>的文件描述符数量限制. 不过它在拥有大量不活跃<code>fd</code>的时候事件通知效率毅然很低<code>O(total_fds)</code>.</p>
+</blockquote>
+<blockquote>
+<p>此后端将<code>EV_READ</code>映射为<code>POLLIN | POLLERR | POLLHUP</code>, 将<code>EV_WRITE</code>映射为<code>POLLOUT | POLLERR | POLLHUP</code>.</p>
+</blockquote>
+</li>
+<li><p><code>EVBACKEND_EPOLL</code> (<code>value 4, Linux</code>)</p>
+<blockquote>
+<p>使用特定于<code>Linux</code>的<code>epoll(7)</code>接口(适用于<code>2.6</code>之后的内核). 对于很少的<code>fds</code>比<code>select</code>和<code>poll</code>稍微慢一点, 但它的扩展性则会更好. 相较于前者的<code>O(total_fds)</code>, <code>epoll</code>则是<code>O(active_fds)</code>.</p>
+</blockquote>
+<blockquote>
+<p>而指的一提的是作为高级事件驱动接口存在错误的设计. 所幸, 这些都可以被内部额外的编程解决. (译者: 这里相当大一部分是作者对设计的吐槽, 有兴趣的同学自己阅读原文这里不再赘译.)</p>
+</blockquote>
+<blockquote>
+<p>此后端映射<code>EV_READ</code>和<code>EV_WRITE</code>的方式与<code>EVBACKEND_POLL</code>相同.</p>
+</blockquote>
+</li>
+<li><p><code>EVBACKEND_LINUXAIO</code> (<code>value 64, Linux</code>)</p>
+<blockquote>
+<p>在<code>4.18</code>之后的内核中可以使用特定的<code>Linux AIO</code>(不是<code>aio</code>而是<code>io_submit</code>)事件接口(但<code>Libev</code>只会在<code>4.19</code>中启动它). 如果这个后端可用, 那么<strong>可能</strong>值得使用它. 否则, 最好忽略回退选择使用<code>epoll</code>较好. </p>
+</blockquote>
+<blockquote>
+<p><code>Linux AIO</code>似乎并不是一个通用的后端, 所以<code>epoll</code>会作为协助处理无法正常工作的文件描述符. 甚至在出现内核故障的时候, 直接退回到<code>epoll</code>.(译者: 这里是意译.)</p>
+</blockquote>
+<blockquote>
+<p>此后端映射<code>EV_READ</code>和<code>EV_WRITE</code>的方式与<code>EVBACKEND_POLL</code>相同.</p>
+</blockquote>
+</li>
+<li><p><code>EVBACKEND_KQUEUE</code> (<code>value 8, most BSD clones</code>)</p>
+<blockquote>
+<p><code>kqueue</code>其实特别值得一提, 因为在除<code>NetBSD</code>之外的其它<code>BSD</code>实现上都有问题(<code>Break</code>). 然而与<code>epoll</code>设计不同的是, 它的这些错误可以在不更改现有<code>API</code>的情况下被修复. 所以, 除非您明确指定<code>EVBACKEND_KQUEUE</code>否则不会被作为这些平台的首选. </p>
+</blockquote>
+<blockquote>
+<p><code>kqueue</code>与<code>epoll</code>可扩展性一样, 但是内核的接口更为高效(并不只是说速度). 并且此后端通常在大多数情况下都表现良好.</p>
+</blockquote>
+<blockquote>
+<p>此后端将<code>EV_READ</code>映射到带有<code>NOTE_EOF</code>的<code>EVFILT_READ kevent</code>，并将<code>EV_WRITE</code>映射到带有 <code>NOTE_EOF</code>的<code>EVFILT_WRITE kevent</code>.</p>
+</blockquote>
+</li>
+<li><p><code>EVBACKEND_DEVPOLL</code> (<code>value 16, Solaris 8</code>)</p>
+<blockquote>
+<p>尚未实现.</p>
+</blockquote>
+</li>
+<li><p><code>EVBACKEND_PORT</code> (<code>value 32, Solaris 10</code>)</p>
+<blockquote>
+<p><code>Solaris 10</code>的事件接口. 虽然它也很慢, 但是仍然能保证<code>O(active_fds)</code>的效率. 它在每次循环迭代中，每个活动文件描述符都需要一个系统调用. 所以在少量<code>fds</code>中选择使用<code>select</code>和<code>poll</code>通常会更好.</p>
+</blockquote>
+<blockquote>
+<p>值得一提的是: 他们(<code>Sun</code>)给出的代码示例都是错的, 但是所幸的是<code>Libev</code>能够解决这些白痴问题(<code>work around these idiocies</code>)</p>
+</blockquote>
+<blockquote>
+<p>此后端映射<code>EV_READ</code>和<code>EV_WRITE</code>的方式与<code>EVBACKEND_POLL</code>相同.</p>
+</blockquote>
+</li>
+</ul>
+<p>  如果上述一个或多个后端标志被添加到标志值中，那么只有这些后端会被尝试(以相反的顺序). 如果没有指定, 那将尝试 <code>ev_recommended_backends()</code>中的所有后端。</p>
+<p>  这个示例尝试创建一个仅使用<code>epoll</code>的事件循环:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ev_loop</span> *<span class="title">epoller</span> = <span class="title">ev_loop_new</span> (<span class="title">EVBACKEND_EPOLL</span> | <span class="title">EVFLAG_NOENV</span>);</span></span><br><span class="line"><span class="keyword">if</span> (!epoller)</span><br><span class="line">  fatal (<span class="string">"no epoll found here, maybe it hides under your chair"</span>);</span><br></pre></td></tr></table></figure>
+<p>  这个示例假设但如果可用, 请确保使用<code>kqueue</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ev_loop</span> *<span class="title">loop</span> = <span class="title">ev_loop_new</span> (<span class="title">ev_recommended_backends</span> () | <span class="title">EVBACKEND_KQUEUE</span>);</span></span><br></pre></td></tr></table></figure>
+<p>  同样的, 如果可以则希望使用<code>Linux AIO</code>. 否则, 使用其它后端:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ev_loop</span> *<span class="title">loop</span> = <span class="title">ev_loop_new</span> (<span class="title">ev_recommended_backends</span> () | <span class="title">EVBACKEND_LINUXAIO</span>);</span></span><br></pre></td></tr></table></figure>
+<h3 id="3-int-ev-is-default-loop-loop"><a href="#3-int-ev-is-default-loop-loop" class="headerlink" title="3. int ev_is_default_loop (loop)"></a>3. int ev_is_default_loop (loop)</h3><p>  如果是”<strong>缺省</strong>“的<code>loop</code>返回<code>true</code>, 否则返回<code>false</code>.</p>
+<h3 id="4-unsigned-int-ev-iteration-loop"><a href="#4-unsigned-int-ev-iteration-loop" class="headerlink" title="4. unsigned int ev_iteration (loop)"></a>4. unsigned int ev_iteration (loop)</h3><p>  返回当前<code>loop</code>的迭代次数.</p>
+<h3 id="5-ev-set-userdata-loop-void-data-void-ev-userdata-loop"><a href="#5-ev-set-userdata-loop-void-data-void-ev-userdata-loop" class="headerlink" title="5. ev_set_userdata (loop, void data) || void ev_userdata (loop)"></a>5. ev_set_userdata (loop, void <em>data) || void </em>ev_userdata (loop)</h3><p>  设置与获取<code>loop</code>的用户自定义对象(<code>void* data</code>), 这通常用来让<code>loop</code>携带一些特殊的对象(上下文).</p>
+<h3 id="6-ev-verify-loop"><a href="#6-ev-verify-loop" class="headerlink" title="6. ev_verify (loop)"></a>6. ev_verify (loop)</h3><p>  这个函数根据<code>EV_VERIFY</code>宏在内部做一些健壮性、可靠性的检查与验证, 如果发现错误会立即抛出错误消息并调用<code>abort()</code>.</p>
+<p>  这通常在开发、调试期间尤为有用, 有利于协助我们排查问题. 而在生产环境中最好避免使用, 过多的检查会影响整体性能.</p>
+<h3 id="7-ev-break-loop-how"><a href="#7-ev-break-loop-how" class="headerlink" title="7. ev_break (loop, how)"></a>7. ev_break (loop, how)</h3><p>  可以用来调用<code>ev_run</code>提前返回(但必须在处理完所有未处理的事件之后).</p>
+<ul>
+<li><p><code>how</code>为<code>EVBREAK_ONE</code>会返回一层<code>ev_run</code>嵌套.</p>
+</li>
+<li><p><code>how</code>为<code>EVBREAK_ALL</code>会返回所有<code>ev_run</code>嵌套.</p>
+</li>
+</ul>
+<p>  <code>ev_run</code>返回之后再次调用<code>ev_run</code>则会清除<code>break state</code>.</p>
+<p>  <code>ev_run</code>(外部)调用<code>ev_break</code>不会产生任何影响.</p>
+<h3 id="8-unsigned-int-ev-backend-loop"><a href="#8-unsigned-int-ev-backend-loop" class="headerlink" title="8. unsigned int ev_backend (loop)"></a>8. unsigned int ev_backend (loop)</h3><p>  返回正在使用的后端标志位.</p>
+<h3 id="9-ev-run-loop-int-flags"><a href="#9-ev-run-loop-int-flags" class="headerlink" title="9. ev_run (loop, int flags)"></a>9. ev_run (loop, int flags)</h3><p>  此函数通常在初始化完成所有的观察者并且想开始处理事件之后被调用. 它将向操作系统询问任何新事件<code>&lt;-&gt;</code>调用观察者回调, 然后无限期地重复这个过程.</p>
+<p>  如果<code>flags</code>参数为<code>0</code>，它将在内部持续处理事件，直到不再有事件处于活动状态或主动调用<code>ev_break</code>. 如果没有更多活动的观察者, 那么此函数将会返回. 请注意, 显示调用<code>ev_break</code>来停止事件循环通常是最好的方式. </p>
+<ul>
+<li><p><code>EVRUN_ONCE</code></p>
+<blockquote>
+<p>查找并处理任何已触发(<code>pending</code>)但未完成的事件. 在至少处理了<code>1</code>个事件后<code>ev_run</code>将会直接返回.</p>
+</blockquote>
+</li>
+<li><p><code>EVRUN_NOWAIT</code></p>
+<blockquote>
+<p>查找并检查所有事件, 在经过一次迭代后如果没有已触发(<code>pending</code>)但未完成的事件则<code>ev_run</code>返回.</p>
+</blockquote>
+<p>下面则是<code>ev_run</code>内部大致的运行流程(不保证将来不会改变):</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">- 递增`loop`深度.</span><br><span class="line">- 重置`ev_break`状态.</span><br><span class="line">- 在第1次迭代之前，呼叫所有`pending`中的观察者。</span><br><span class="line">开始循环(`LOOP`):</span><br><span class="line">- 如果定义了`EVFLAG_FORKCHECK`宏, 则每次都检查`fork`.</span><br><span class="line">- 如果检测到了`fork`, 则根据队列调用所有`fork watcher`.</span><br><span class="line">- 根据队列调用所有`prepare watcher`.</span><br><span class="line">- 如果调用了`ev_break`, 则直接结束事件循环.</span><br><span class="line">- 如果`fork`已经被调用, 分离并且重新创建内核状态避免进程干扰.</span><br><span class="line">- 更新未修改的内核状态.</span><br><span class="line">- 更新`event loop time` (`ev_now()`).</span><br><span class="line">- 如果有必要, 计算休眠和阻塞时间(`EVRUN_NOWAIT`或者没有活跃的观察者则不会导致`sleep`).</span><br><span class="line">- 如果指定了I/O休眠时间, 则这里会执行.</span><br><span class="line">- 递增循环迭代计数器.</span><br><span class="line">- 阻塞进程等待事件来来临.</span><br><span class="line">- 根据队列调用所有活跃`I/O`事件</span><br><span class="line">- 更新`event loop time` (`ev_now()`) 避免时间跳跃.</span><br><span class="line">- 根据队列处理超时定时器(`ev_timer`).</span><br><span class="line">- 根据队列处理周期定时器(`ev_periodic`).</span><br><span class="line">- 处理具有高优先级的`idle`事件.</span><br><span class="line">- 根据队列处理所有(`ev_check`).</span><br><span class="line">- `signal`、`async`、`child` 被作为`I/O`观察者实现并串行化执行.</span><br><span class="line">- 如果调用`ev_break`或`flags`为`EVRUN_ONCE`、`EVRUN_NOWAIT`或没有活跃事件, 则结束事件循环. 否则重复上述步奏.</span><br><span class="line">结束(`FINISH`):</span><br><span class="line">- 根据情况重置`EV_BREAK`的状态.</span><br><span class="line">- 递减`loop`深度</span><br><span class="line">- `ev_run`返回.</span><br></pre></td></tr></table></figure>
         <div id="react-support-footer-root"></div>
       </div>
     </div>
