@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://libev.cn/base/install.html</loc>
+    <loc>https://libev.cn/api/timer.html</loc>
     
     <lastmod>2022-03-19</lastmod>
     
@@ -12,6 +12,24 @@
   
   <url>
     <loc>https://libev.cn/api/io.html</loc>
+    
+    <lastmod>2022-03-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://libev.cn/index.html</loc>
+    
+    <lastmod>2022-03-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://libev.cn/base/install.html</loc>
     
     <lastmod>2022-03-19</lastmod>
     
@@ -38,25 +56,7 @@
   </url>
   
   <url>
-    <loc>https://libev.cn/index.html</loc>
-    
-    <lastmod>2022-03-14</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://libev.cn/api/child.html</loc>
-    
-    <lastmod>2022-03-13</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://libev.cn/api/timer.html</loc>
     
     <lastmod>2022-03-13</lastmod>
     
