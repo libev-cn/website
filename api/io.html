@@ -3,7 +3,7 @@
   <head><meta name="generator" content="Hexo 3.9.0">
     <meta charset="utf-8">
 
-    <title>Libev | ev_io 的使用方式 </title>
+    <title>Libev 中文手册 | ev_io 的使用方式 </title>
     <meta name="description" content>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -32,8 +32,48 @@
     <div class="dc-card">
       <div id="react-search-results-root"></div>
       <div id="page-content" class="doc-formatting">
-        <h1 id="ev-io"><a href="#ev-io" class="headerlink" title="ev_io"></a>ev_io</h1><p>  TODO</p>
-
+        <h2 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h2><h3 id="1-文件描述符的”读”与”写”"><a href="#1-文件描述符的”读”与”写”" class="headerlink" title="1. 文件描述符的”读”与”写”"></a>1. 文件描述符的”读”与”写”</h3><p>  <code>I/O</code>观察者会在每次事件循环迭代中检查注册的文件描述符是否可读、可写. 准确来说:</p>
+<ul>
+<li><p>每次报告<strong>“读”</strong>事件时, 要么内核缓冲区有可被读取的数据, 要么文件描述符状态变更(关闭、出错)等.</p>
+</li>
+<li><p>每次报告<strong>“写”</strong>事件时, 要么内核缓冲区空闲可被写入数据, 要么文件描述符状态变更(连接建立、失败)等.</p>
+</li>
+</ul>
+<p>  如果期间对事件后不做任何处理(关闭、停止), 那么观察者每次都会重复的报告事件. 这种行为我们称之为”<code>level-triggering</code>(水平触发)”.</p>
+<p>  通常我们打开/创建的文件描述符的默认是<strong>阻塞</strong>(<code>block</code>), 这意味着我们每次读取数据时都会将进程陷入到内核态. 所以将所有文件描述符都设置为非阻塞模式一般来说是一个好主意.</p>
+<p>  但, 当您的文件描述符<strong>无法在非阻塞模式下运行</strong>, 那么您必须自己解决如下一些问题:</p>
+<ul>
+<li><p>用额外的事件驱动接口保证事件的准确性.</p>
+</li>
+<li><p>增加定时器、<code>SIGALRM</code>信号等来确保进程不会永久阻塞.</p>
+</li>
+</ul>
+<p>  这通常会需要使用者做更多复杂的操作, 所以说如非必要请置为<strong>非阻塞</strong><code>(non-blocking)</code>.</p>
+<p>  最后, 当您不想再处理一个文件描述符的<code>I/O</code>的事件时请主动停止观察者. </p>
+<h3 id="2-文件描述符”消失”"><a href="#2-文件描述符”消失”" class="headerlink" title="2. 文件描述符”消失”"></a>2. 文件描述符”消失”</h3><p>  通常我们在使用一些”<strong>后端</strong>“(<code>epoll</code>、<code>kqueue</code>、<code>linux aio</code>)的时候, 在注册感兴趣的文件描述符后会主动调用例如<code>dup2</code>、<code>close</code>等函数, 这些函数会直接影响文件描述符在这些事件接口里的状态. </p>
+<p>  导致它们可能会有一些出乎意料的行为, 如: 默默丢弃已注册的事件, 让内部发生异常状态. 这时候如果<code>Libev</code>也无法有效分辨这个文件描述符的真实性与有效性.</p>
+<p>  注意: <strong>为了避免这种类似的情况出现, 每次调用这些方法之前最好先停止事件观察者.</strong></p>
+<h3 id="3-文件-File-的事件"><a href="#3-文件-File-的事件" class="headerlink" title="3. 文件(File)的事件"></a>3. 文件(<code>File</code>)的事件</h3><p>  许多人希望将文件的<code>fd</code>(使用<code>open</code>打开)注册到事件接口中, 借此希望磁盘访问的读、写也是这样. 然而这样的想法无法如”预期”那般到达, 只要是已打开的<code>FILE</code>文件, 那么每次注册后都会立刻获得<strong>“读”</strong>、<strong>“写”</strong>事件.</p>
+<p>  由于高级通知机制通常不太支持文件(<code>FILE</code>), 所以您应该如上述那般无法使用它. 但是<code>Libev</code>会尽可能的模拟<code>POSIX</code>的相关行为, 因为这样做对下面这些行为能提供方便:</p>
+<ol>
+<li><p>关注控制台的 <code>stdin</code>、<code>stdout</code>.</p>
+</li>
+<li><p><code>tty</code>、<code>pipe/sockpair</code>、<code>unix-domain-socket</code>.</p>
+</li>
+<li><p>其它特殊设备.</p>
+<p>总结来说: 即使文件(<code>FILE</code>)因为使用<strong>异步I/O</strong>来提供服务, 但是当它仍然”能行”的时候选择它也不错.</p>
+</li>
+</ol>
+<h3 id="4-SIGPIPE的特殊问题"><a href="#4-SIGPIPE的特殊问题" class="headerlink" title="4. SIGPIPE的特殊问题"></a>4. <code>SIGPIPE</code>的特殊问题</h3><p>  人们似乎都很容易忘记它: 当写入已关闭的管道后您的程序会收到一个<code>SIGPIPE</code>, 默认情况下它会中止您的程序. 这在编码、调试期间是非常明智的行为, 但是对于后端守护进程来说这是<strong>灾难性行为</strong>.</p>
+<p>  所以. 当您无法解释程序为什么会悄无声息退出时, 请注意注册信号并忽略<code>SIGPIPE</code>(或记录进程退出状态, 这会在您事后排查得到很大线索).</p>
+<h3 id="5-accept失败的问题"><a href="#5-accept失败的问题" class="headerlink" title="5. accept失败的问题"></a>5. <code>accept</code>失败的问题</h3><p>  许多<code>POSIX</code>实现的<code>accept</code>函数都不会从队列中删除异常的连接. 例如: 大型服务器经常因为文件描述符用完而导致接受失败(<code>ENFILE</code>), 但是, <code>Libev</code>还是会在下次事件迭代的时候发出事件. 如果您因此没有做好处理, 则可能在无法排查到问题的情况下发现<code>CPU</code>飙升到<code>100%</code>.</p>
+<p>  在每次启动服务之前最好将<code>open files</code>调整到一个合理的值, 可以有效的避免此类事情发生.</p>
+<h2 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h2><h3 id="ev-io-init-ev-io-callback-int-fd-int-events"><a href="#ev-io-init-ev-io-callback-int-fd-int-events" class="headerlink" title="ev_io_init (ev_io *, callback, int fd, int events)"></a>ev_io_init (ev_io *, callback, int fd, int events)</h3><h3 id="ev-io-set-ev-io-int-fd-int-events"><a href="#ev-io-set-ev-io-int-fd-int-events" class="headerlink" title="ev_io_set (ev_io *, int fd, int events)"></a>ev_io_set (ev_io *, int fd, int events)</h3><p>  配置一个<code>ev_io</code>观察者, 参数<code>fd</code>则是文件描述符. <code>events</code>则是<code>EV_READ</code>、<code>EV_WRITE</code>、<code>EV_READ | EV_WRITE</code>.</p>
+<h3 id="ev-io-modify-ev-io-int-events"><a href="#ev-io-modify-ev-io-int-events" class="headerlink" title="ev_io_modify (ev_io *, int events)"></a>ev_io_modify (ev_io *, int events)</h3><p>  类似于<code>ev_io_set</code>, 但是这函数仅更改<code>events</code>事件. (在某些支持的后端下这个操作可能会更快)</p>
+<p>  使用这个函数<code>Libev</code>可以假设fd可以引用一个相同的底层文件描述符. 使用<code>ev_io_set</code>时则无法做到.</p>
+<h3 id="ev-io-start-struct-ev-loop-ev-io"><a href="#ev-io-start-struct-ev-loop-ev-io" class="headerlink" title="ev_io_start (struct ev_loop , ev_io )"></a>ev_io_start (struct ev_loop <em>, ev_io </em>)</h3><p>  在前面初始化完毕后, 调用这个方法会将<code>ev_io</code>注册到内部并启动. </p>
+<h2 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h2><p>  注册一个来自控制台的<code>ev_io</code>输入事件, 并将输其输出返回到控制台. 直到使用<code>ctrl + c</code>退出:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">stdin_cb</span><span class="params">(struct ev_loop *loop, ev_io *w, <span class="keyword">int</span> revents)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">char</span> buffer[<span class="number">4096</span>];</span><br><span class="line">  <span class="built_in">memset</span>(buffer, <span class="number">4096</span>, <span class="number">4096</span>);</span><br><span class="line">  read(w-&gt;fd, buffer, <span class="number">4096</span>);</span><br><span class="line">  <span class="built_in">puts</span>(buffer);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"等待输入: \n"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// 可以使用已定义的宏来获取默认的事件循环, 当然你也可以根据自己的需求创建指定的.</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">ev_loop</span> *<span class="title">loop</span> = <span class="title">EV_DEFAULT</span>;</span></span><br><span class="line"></span><br><span class="line">  ev_io stdin_watcher;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 在启动一个I/O观察者之前, 我们需要先初始化它.</span></span><br><span class="line">  ev_io_init (&amp;stdin_watcher, stdin_cb, <span class="comment">/*STDIN_FILENO*/</span> <span class="number">0</span>, EV_READ);</span><br><span class="line">  <span class="comment">// 启动后意味着观察者将在`stdin`变为可读后触发.</span></span><br><span class="line">  ev_io_start (loop, &amp;stdin_watcher);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"等待输入: \n"</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 开始运行事件循环</span></span><br><span class="line">  ev_run (loop, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果事件循环退出, 那将会执行到这里.</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
         <div id="react-support-footer-root"></div>
       </div>
     </div>
