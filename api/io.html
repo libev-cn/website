@@ -32,7 +32,8 @@
     <div class="dc-card">
       <div id="react-search-results-root"></div>
       <div id="page-content" class="doc-formatting">
-        <h2 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h2><h3 id="1-文件描述符的”读”与”写”"><a href="#1-文件描述符的”读”与”写”" class="headerlink" title="1. 文件描述符的”读”与”写”"></a>1. 文件描述符的”读”与”写”</h3><p>  <code>I/O</code>观察者会在每次事件循环迭代中检查注册的文件描述符是否可读、可写. 准确来说:</p>
+        <h2 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h2><p>  <code>ev_io</code>是这对<code>I/O</code>观察者, 通过注册组合事件来监视状态变更.</p>
+<h3 id="1-文件描述符的”读”与”写”"><a href="#1-文件描述符的”读”与”写”" class="headerlink" title="1. 文件描述符的”读”与”写”"></a>1. 文件描述符的”读”与”写”</h3><p>  <code>I/O</code>观察者会在每次事件循环迭代中检查注册的文件描述符是否可读、可写. 准确来说:</p>
 <ul>
 <li><p>每次报告<strong>“读”</strong>事件时, 要么内核缓冲区有可被读取的数据, 要么文件描述符状态变更(关闭、出错)等.</p>
 </li>
