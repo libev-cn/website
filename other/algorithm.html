@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+
+    <title>Libev 中文手册 | 算法复杂度 </title>
+    <meta name="description" content>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <!-- fonts -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Ubuntu:300,400,500,600,700" rel="stylesheet">
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/style/doc.css">
+
+    <!-- favicon -->
+    <link rel="icon" href="/images/favicon.ico">
+
+    
+
+  </head>
+  <body>
+
+   <script>window.__INITIAL_STATE__ = {"page":{"title":"算法复杂度","path":"other/algorithm.html"},"data":{"navigation":{"logo":{"text":"Libev 中文手册","type":"link","path":"/"},"main":[{"text":"一、介绍","type":"label"},{"text":"下载安装","type":"link","path":"base/install.html"},{"text":"使用示例","type":"link","path":"base/used.html"},{"text":"二、入门","type":"label"},{"text":"ev_loop","type":"link","path":"api/loop.html"},{"text":"ev_io","type":"link","path":"api/io.html"},{"text":"ev_timer","type":"link","path":"api/timer.html"},{"text":"ev_signal","type":"link","path":"api/signal.html"},{"text":"ev_child","type":"link","path":"api/child.html"},{"text":"ev_idle","type":"link","path":"api/idle.html"},{"text":"ev_stat","type":"link","path":"api/stat.html"},{"text":"三、其它","type":"label"},{"text":"内存检查","type":"link","path":"other/memcheck.html"},{"text":"算法复杂度","type":"link","path":"other/algorithm.html"},{"text":"编译警告","type":"link","path":"other/compiler.html"},{"text":"线程安全","type":"link","path":"other/threads.html"},{"text":"内置的宏","type":"link","path":"other/micro.html"}]}},"config":{"timezone":"UTC","root":"/","time_format":"HH:mm:ss","theme":"../node_modules/hexo-theme-doc","theme_config":{"swagger_ui":{"version":2,"permalinks":true,"api_explorer":true,"download":"Download specification","show_extensions":false,"deep_linking":true,"display_operation_id":false,"doc_expansion":"none"},"search":{"skip":false,"background":false,"route":"/lunr.json"},"favicon":"images/favicon.ico"}}}</script>
+
+    <div id="react-navigation-root"><div class="doc-navigation" data-reactroot><nav class="doc-navbar"><a href="/" class="doc-navbar__logo"><img src="/images/logo.png" class="doc-navbar__logo__img"><span class="doc-navbar__logo__text">Libev 中文手册</span></a><i class="dc-icon dc-icon--close dc-icon--interactive doc-sidebar-close doc-navbar__sidebar-close doc-navbar__sidebar-close--desktop"></i><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-navbar__sidebar-toggle"></i></nav><nav class="doc-sidebar"><div class="doc-sidebar__vertical-menu"><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-sidebar-toggle--primary doc-sidebar__vertical-menu__item"></i><i class="dc-icon dc-icon--search dc-icon--interactive doc-sidebar__vertical-menu__item doc-sidebar__vertical-menu__item--primary"></i></div><div class="doc-sidebar-content"><div class="doc-sidebar__search-form"></div><ul class="doc-sidebar-list"></ul></div></nav></div></div>
+    <div class="doc-content">
+  <div class="dc-page">
+    <div class="dc-card">
+      <div id="react-search-results-root"></div>
+      <div id="page-content" class="doc-formatting">
+        <h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><p>  本文记录使用到的算法复杂度.</p>
+<h2 id="复杂度"><a href="#复杂度" class="headerlink" title="复杂度"></a>复杂度</h2><p>  以下所有内容都是关于时间损耗的: 如果需要对数组进行扩展, <code>Libev</code>会使用<code>realloc</code>重新分配并移动整个数组. </p>
+<p>  不过随着数量的增加, 这样的操作次数会逐渐减少. 所以<code>O(1)</code>的意思是<code>Libev</code>执行了很长时间的<code>realloc</code>操作, 但是在一般情况下它很快且接近与常数级(<code>constant time</code>)操作.</p>
+<ul>
+<li><p>添加 / 删除 计时器<code>O(logn)</code>:</p>
+<blockquote>
+<p>这意味着: 如果您有一个<code>1</code>小时后触发的<code>timer</code>, 还有100个左右的<code>timer</code>会在此之前触发. 那么每次的插入都会不得不跳过大约<code>7</code>(ld 100)个左右的<code>timer</code>.</p>
+</blockquote>
+</li>
+<li><p>改变计时器<code>O(logn)</code>: </p>
+<blockquote>
+<p>改变计时器的成本比删除/添加计时器的成本要低, 只需要在计算在内部结构中的操作.</p>
+</blockquote>
+</li>
+<li><p>添加 <code>IO</code> / <code>idle</code>/ <code>signal</code>/ <code>child</code>等<code>O(1)</code>:</p>
+<blockquote>
+<p>只需要将它们添加到<strong>数组</strong>或<strong>链表</strong>的指定位置.</p>
+</blockquote>
+</li>
+<li><p>每次循环迭代对文件描述符的每次更改:</p>
+<blockquote>
+<p>更改意味着启动或停止<code>ev_io</code>, 这需要<code>Libev</code>重新计算它的状态. 这取决于是否需要通知内核(系统调用).</p>
+</blockquote>
+</li>
+<li><p>每次循环迭代中找到下一个计时器<code>O(1)</code>:</p>
+<blockquote>
+<p>从最小堆(二叉树或四叉)中总能在固定的位置找到下一个计时器.</p>
+</blockquote>
+</li>
+</ul>
+
+        <div id="react-support-footer-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+
+    
+
+    <!-- js vendors -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.0/lunr.min.js"></script>
+
+    <!-- js source  -->
+    <script src="/script/doc.js"></script>
+
+    
+
+  </body>
+</html>

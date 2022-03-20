@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+
+    <title>Libev 中文手册 | 编译警告 </title>
+    <meta name="description" content>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <!-- fonts -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Ubuntu:300,400,500,600,700" rel="stylesheet">
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/style/doc.css">
+
+    <!-- favicon -->
+    <link rel="icon" href="/images/favicon.ico">
+
+    
+
+  </head>
+  <body>
+
+   <script>window.__INITIAL_STATE__ = {"page":{"title":"编译警告","path":"other/compiler.html"},"data":{"navigation":{"logo":{"text":"Libev 中文手册","type":"link","path":"/"},"main":[{"text":"一、介绍","type":"label"},{"text":"下载安装","type":"link","path":"base/install.html"},{"text":"使用示例","type":"link","path":"base/used.html"},{"text":"二、入门","type":"label"},{"text":"ev_loop","type":"link","path":"api/loop.html"},{"text":"ev_io","type":"link","path":"api/io.html"},{"text":"ev_timer","type":"link","path":"api/timer.html"},{"text":"ev_signal","type":"link","path":"api/signal.html"},{"text":"ev_child","type":"link","path":"api/child.html"},{"text":"ev_idle","type":"link","path":"api/idle.html"},{"text":"ev_stat","type":"link","path":"api/stat.html"},{"text":"三、其它","type":"label"},{"text":"内存检查","type":"link","path":"other/memcheck.html"},{"text":"算法复杂度","type":"link","path":"other/algorithm.html"},{"text":"编译警告","type":"link","path":"other/compiler.html"},{"text":"线程安全","type":"link","path":"other/threads.html"},{"text":"内置的宏","type":"link","path":"other/micro.html"}]}},"config":{"timezone":"UTC","root":"/","time_format":"HH:mm:ss","theme":"../node_modules/hexo-theme-doc","theme_config":{"swagger_ui":{"version":2,"permalinks":true,"api_explorer":true,"download":"Download specification","show_extensions":false,"deep_linking":true,"display_operation_id":false,"doc_expansion":"none"},"search":{"skip":false,"background":false,"route":"/lunr.json"},"favicon":"images/favicon.ico"}}}</script>
+
+    <div id="react-navigation-root"><div class="doc-navigation" data-reactroot><nav class="doc-navbar"><a href="/" class="doc-navbar__logo"><img src="/images/logo.png" class="doc-navbar__logo__img"><span class="doc-navbar__logo__text">Libev 中文手册</span></a><i class="dc-icon dc-icon--close dc-icon--interactive doc-sidebar-close doc-navbar__sidebar-close doc-navbar__sidebar-close--desktop"></i><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-navbar__sidebar-toggle"></i></nav><nav class="doc-sidebar"><div class="doc-sidebar__vertical-menu"><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-sidebar-toggle--primary doc-sidebar__vertical-menu__item"></i><i class="dc-icon dc-icon--search dc-icon--interactive doc-sidebar__vertical-menu__item doc-sidebar__vertical-menu__item--primary"></i></div><div class="doc-sidebar-content"><div class="doc-sidebar__search-form"></div><ul class="doc-sidebar-list"></ul></div></nav></div></div>
+    <div class="doc-content">
+  <div class="dc-page">
+    <div class="dc-card">
+      <div id="react-search-results-root"></div>
+      <div id="page-content" class="doc-formatting">
+        <h2 id="心态"><a href="#心态" class="headerlink" title="心态"></a>心态</h2><p>  根据不同的编译器设置, 在编译<code>Libev</code>代码时可能会收到(很多)警告. 有些人显然对此感到害怕. 而由于许多原因, 这些都是不可避免的.</p>
+<h2 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h2><p>  每个编译器都有不同的警告, 每个用户对警告选项有不同的喜好. 除非针对特定的编译器和编译器版本, 否则要做到”<code>0 warnings</code>“代码其实是很难的.</p>
+<p>  另一个原因是避免某些编译器的警告需要精心设计或对代码进行其他更改，从而使其不太清晰和难以维护. 这中间不乏一些”愚蠢”的警告, 它们可能是某些版本的<code>bug</code>或没分析完全某些语义.</p>
+<p>  例如: 某些旧版本的<code>gcc</code>仍会存在一些大量的误报. 虽然在新的版本中已被修复, 但是很多人仍坚持使用就版本.</p>
+<p>  <code>Libev</code>虽然会尽可能少的避免警告的出现, 但是”<code>0 warnings</code>“这种并不是我们的目标.</p>
+<h2 id="建议"><a href="#建议" class="headerlink" title="建议"></a>建议</h2><p>  建议大家在构建的时候不要忽略任何可能存在的警告, 这样有助于大家发现潜在的编码问题.</p>
+<p>  也请大家记住: 警告只是警告, 它并不是错误.</p>
+
+        <div id="react-support-footer-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+
+    
+
+    <!-- js vendors -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.0/lunr.min.js"></script>
+
+    <!-- js source  -->
+    <script src="/script/doc.js"></script>
+
+    
+
+  </body>
+</html>

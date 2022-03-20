@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+
+    <title>Libev 中文手册 | 内存检查 </title>
+    <meta name="description" content>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+
+    <!-- fonts -->
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Ubuntu:300,400,500,600,700" rel="stylesheet">
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/style/doc.css">
+
+    <!-- favicon -->
+    <link rel="icon" href="/images/favicon.ico">
+
+    
+
+  </head>
+  <body>
+
+   <script>window.__INITIAL_STATE__ = {"page":{"title":"内存检查","path":"other/memcheck.html"},"data":{"navigation":{"logo":{"text":"Libev 中文手册","type":"link","path":"/"},"main":[{"text":"一、介绍","type":"label"},{"text":"下载安装","type":"link","path":"base/install.html"},{"text":"使用示例","type":"link","path":"base/used.html"},{"text":"二、入门","type":"label"},{"text":"ev_loop","type":"link","path":"api/loop.html"},{"text":"ev_io","type":"link","path":"api/io.html"},{"text":"ev_timer","type":"link","path":"api/timer.html"},{"text":"ev_signal","type":"link","path":"api/signal.html"},{"text":"ev_child","type":"link","path":"api/child.html"},{"text":"ev_idle","type":"link","path":"api/idle.html"},{"text":"ev_stat","type":"link","path":"api/stat.html"},{"text":"三、其它","type":"label"},{"text":"内存检查","type":"link","path":"other/memcheck.html"},{"text":"算法复杂度","type":"link","path":"other/algorithm.html"},{"text":"编译警告","type":"link","path":"other/compiler.html"},{"text":"线程安全","type":"link","path":"other/threads.html"},{"text":"内置的宏","type":"link","path":"other/micro.html"}]}},"config":{"timezone":"UTC","root":"/","time_format":"HH:mm:ss","theme":"../node_modules/hexo-theme-doc","theme_config":{"swagger_ui":{"version":2,"permalinks":true,"api_explorer":true,"download":"Download specification","show_extensions":false,"deep_linking":true,"display_operation_id":false,"doc_expansion":"none"},"search":{"skip":false,"background":false,"route":"/lunr.json"},"favicon":"images/favicon.ico"}}}</script>
+
+    <div id="react-navigation-root"><div class="doc-navigation" data-reactroot><nav class="doc-navbar"><a href="/" class="doc-navbar__logo"><img src="/images/logo.png" class="doc-navbar__logo__img"><span class="doc-navbar__logo__text">Libev 中文手册</span></a><i class="dc-icon dc-icon--close dc-icon--interactive doc-sidebar-close doc-navbar__sidebar-close doc-navbar__sidebar-close--desktop"></i><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-navbar__sidebar-toggle"></i></nav><nav class="doc-sidebar"><div class="doc-sidebar__vertical-menu"><i class="dc-icon dc-icon--menu dc-icon--interactive doc-sidebar-toggle doc-sidebar-toggle--primary doc-sidebar__vertical-menu__item"></i><i class="dc-icon dc-icon--search dc-icon--interactive doc-sidebar__vertical-menu__item doc-sidebar__vertical-menu__item--primary"></i></div><div class="doc-sidebar-content"><div class="doc-sidebar__search-form"></div><ul class="doc-sidebar-list"></ul></div></nav></div></div>
+    <div class="doc-content">
+  <div class="dc-page">
+    <div class="dc-card">
+      <div id="react-search-results-root"></div>
+      <div id="page-content" class="doc-formatting">
+        <h2 id="Valgrind"><a href="#Valgrind" class="headerlink" title="Valgrind"></a>Valgrind</h2><p>  <code>Valgrind</code>是非常流行的内存检查工具, 不幸的是其报告可读性较差.</p>
+<p>  如果你认为在<code>Libev</code>中发现了一个错误(内存泄漏、未初始化), 那么请多次检查:</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">==2274==    definitely lost: 0 bytes <span class="keyword">in</span> 0 blocks.</span><br><span class="line">==2274==      possibly lost: 0 bytes <span class="keyword">in</span> 0 blocks.</span><br><span class="line">==2274==    still reachable: 256 bytes <span class="keyword">in</span> 1 blocks.</span><br></pre></td></tr></table></figure>
+<p>  这样就没有内存泄漏了! 就像被全局、静态变量引用的内存不是内存泄漏一样. 与之类似的情况是, <code>Valgrind</code>可能会报告内核错误, 就好像是<code>Libev</code>中的错误似的. 这样的情况会混淆视听.</p>
+<p>  请记住, <code>Valgrind</code>是一个很好的内存检查工具. 但是不要盲目信仰它. 如果您不确定某些事情, 可以在<code>Libev</code>邮件列表附上完整的<code>Valgrind</code>报告.</p>
+
+        <div id="react-support-footer-root"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+
+    
+
+    <!-- js vendors -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lunr.js/2.1.0/lunr.min.js"></script>
+
+    <!-- js source  -->
+    <script src="/script/doc.js"></script>
+
+    
+
+  </body>
+</html>
