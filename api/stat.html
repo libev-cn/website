@@ -32,8 +32,44 @@
     <div class="dc-card">
       <div id="react-search-results-root"></div>
       <div id="page-content" class="doc-formatting">
-        <h1 id="ev-stat"><a href="#ev-stat" class="headerlink" title="ev_stat"></a>ev_stat</h1><p>  TODO</p>
-
+        <h2 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h2><h3 id="1-文件属性刚刚改变了吗"><a href="#1-文件属性刚刚改变了吗" class="headerlink" title="1. 文件属性刚刚改变了吗?"></a>1. 文件属性刚刚改变了吗?</h3><p>  <code>ev_stat</code>会监视文件系统的相关属性变更. 准确来说, 它会定期调用<code>stat</code>(或者操作系统通知)查看对比与上次的变化. 只有在文件确实发生了<strong>状态变更</strong>后才会被报告.</p>
+<p>  注册<code>ev_stat</code>指定的路径可以是”不存在”的, 因为从”不存在”变为”存在”也是一种状态. 路径不得以斜杠结尾或包含特殊符号, 如: <code>&#39;.&#39;</code>和<code>&#39;..&#39;</code>.  设置的路径最好是<strong>绝对路径</strong>, 否则<strong>工作目录</strong>的变更可能导致受到影响.</p>
+<p>  没有通用的事件接口可以知道这些, 所以最好的办法就是在那些平台定期使用<code>stat</code>来查询变更. 唯一实现的特定于操作系统的接口是<code>Linux inotify</code>, <code>kqueue</code>虽然有一定支持但是无法实现<code>stat</code>的完整语义.</p>
+<p>  即使是操作系统支持也不适合启动大量的<code>ev_stat</code>, 因为这些资源(I/O、CPU)密集型对性能消耗极大.</p>
+<h3 id="2-ABI问题"><a href="#2-ABI问题" class="headerlink" title="2. ABI问题"></a>2. ABI问题</h3><p>  <code>Libev</code>使用默认环境时选择的<code>stat</code>是<code>32</code>位版本的, 当<code>ABI</code>改为<code>64</code>位的时候使用会失败. 这种情况下, 必须使用同样的<code>ABI</code>版本编译来保障二进制兼容性.</p>
+<p>  解决这个问题的办法是定制发行版的作者默认使用<code>64</code>位而并不仅是可选, <code>Libev</code>不会简单直接的支持, 因为这也需要与编译器、环境进行探测后统计知晓.</p>
+<h3 id="3-Inotify-与-KQUEUE"><a href="#3-Inotify-与-KQUEUE" class="headerlink" title="3. Inotify 与 KQUEUE"></a>3. Inotify 与 KQUEUE</h3><p>  当<code>inotify</code>支持已编译到<code>Libev</code>并在运行时出现时, 它将尽可能加快更改检测. <code>inotify</code>描述符将在第一个<code>ev_stat</code>启动时延迟创建.</p>
+<p>  <code>inotify</code>的存在不会改变<code>ev_stat</code>的语义, 只是能更早的检测到变更信息并且在某些情况下避免<code>stat</code>调用. 然而, 即使存在<code>inotify</code>的情况下, 有时候<code>Libev</code>也必须使用轮询进行统计. 但是只要<code>Linux</code>内核版本在<code>2.6.25</code>及以上, <code>Libev</code>对这些本地文件系统(<code>ext2/3</code>、<code>ifs</code>、<code>reisefs</code>、<code>xfs</code>)上已存在的路径不需要使用轮询.</p>
+<p>  不支持<code>kqueue</code>是因为它显然不能用来实现这个功能, 因为需要在对象上一直打开一个文件描述符, 并且很难检测重命名、断开链接等.</p>
+<h3 id="4-stat-是”同步”操作"><a href="#4-stat-是”同步”操作" class="headerlink" title="4. stat() 是”同步”操作"></a>4. stat() 是”同步”操作</h3><p>  <code>Libev</code>本身通常不执行任何类型的<code>I/O</code>, 所以一般不会阻塞住进程. <code>ev_stat</code>则会是一个例外, 因为它是一个同步操作.</p>
+<p>  对于<strong>本地路径</strong>这通常无关紧要: 除非系统非常繁忙或每次<code>stat</code>之间的间隔很大, 否则<code>stat</code>调用执行的很快. 因为这时候路劲数据都已经保存在内存中.</p>
+<p>  但对于远程文件系统, <code>stat()</code>可能会因为网络问题而长期阻塞. 即使再最好的情况下, 一次<code>stat</code>也需要毫秒级别的时间间隔.</p>
+<p>  因此最好避免在<code>NFS</code>等文件系统上使用<code>ev_stat</code>, 虽然<code>ev_stat</code>已经支持这么做.</p>
+<h3 id="5-时间精度的特殊问题"><a href="#5-时间精度的特殊问题" class="headerlink" title="5. 时间精度的特殊问题"></a>5. 时间精度的特殊问题</h3><p>  <code>stat()</code>系统调用最多支持秒级精度, 即使是在更高精度的系统上大多数情况下也只支持秒级.</p>
+<p>  这意味着, 如果两次更新的周期很短则容易错过. 即: 同一秒内仅更新了时间, <code>ev_stat</code>则无法检测到(除非在其它数据层面也发生了变更). 解决问题的办法是将每次操作延迟<code>1.02</code>秒, 这个<code>0.02</code>的偏移值是为了解决时间精度不一致的问题.</p>
+<h2 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h2><h3 id="ev-stat-init-ev-stat-callback-const-char-path-ev-tstamp-interval"><a href="#ev-stat-init-ev-stat-callback-const-char-path-ev-tstamp-interval" class="headerlink" title="ev_stat_init (ev_stat , callback, const char path, ev_tstamp interval)"></a>ev_stat_init (ev_stat <em>, callback, const char </em>path, ev_tstamp interval)</h3><h3 id="ev-stat-set-ev-stat-const-char-path-ev-tstamp-interval"><a href="#ev-stat-set-ev-stat-const-char-path-ev-tstamp-interval" class="headerlink" title="ev_stat_set (ev_stat , const char path, ev_tstamp interval)"></a>ev_stat_set (ev_stat <em>, const char </em>path, ev_tstamp interval)</h3><blockquote>
+<p>配置<code>ev_stat</code>检查<code>path</code>的变更, <code>interval</code>则是每次检查的间隔(通常是<code>0</code>来让<code>Libev</code>选择一个合适的值).</p>
+</blockquote>
+<blockquote>
+<p>当<code>callback</code>收到<code>EV_STAT</code>事件的时候, 表示<code>ev_stat</code>相对于之前检测到了属性变更.</p>
+</blockquote>
+<h3 id="ev-stat-stat-loop-ev-stat"><a href="#ev-stat-stat-loop-ev-stat" class="headerlink" title="ev_stat_stat (loop, ev_stat *)"></a>ev_stat_stat (loop, ev_stat *)</h3><blockquote>
+<p>如果您在上述回调函数中更改了<code>path</code>值, 主动调用此函数会立刻更新<code>stat</code>的更改.</p>
+</blockquote>
+<h3 id="ev-tstamp-interval-read-only"><a href="#ev-tstamp-interval-read-only" class="headerlink" title="ev_tstamp interval [read-only]"></a>ev_tstamp interval [read-only]</h3><blockquote>
+<p>间隔时间.</p>
+</blockquote>
+<h3 id="const-char-path-read-only"><a href="#const-char-path-read-only" class="headerlink" title="const char *path [read-only]"></a>const char *path [read-only]</h3><blockquote>
+<p>监视路径.</p>
+</blockquote>
+<h3 id="ev-statdata-prev-read-only"><a href="#ev-statdata-prev-read-only" class="headerlink" title="ev_statdata prev [read-only]"></a>ev_statdata prev [read-only]</h3><blockquote>
+<p>检测到变更事件之前的文件属性. 每当<code>prev != attr</code>的时候, 这些成员中会有一个或多个不同: <code>st_dev</code>, <code>st_ino</code>, <code>st_mode</code>, <code>st_nlink</code>, <code>st_uid</code>, <code>st_gid</code>, <code>st_rdev</code>, <code>st_size</code>, <code>st_atime</code>, <code>st_mtime</code>, <code>st_ctime</code>.</p>
+</blockquote>
+<h3 id="ev-statdata-attr-read-only"><a href="#ev-statdata-attr-read-only" class="headerlink" title="ev_statdata attr [read-only]"></a>ev_statdata attr [read-only]</h3><blockquote>
+<p>最新检测到的变更事件文件属性. 虽然类型是<code>ev_statdata</code>, 但是通常是是您系统中的<code>struct stat</code>类型. 如果<code>st_nlink</code>为<code>0</code>, 则说明<code>stat</code>期间发生了一些错误.</p>
+</blockquote>
+<h2 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h2><p>  本示例演示了<code>v.log</code>的文件创建后退出事件循环:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 只需导入单个头文件</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ev.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 当发现`v.log`文件被创建之后退出.</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">stat_cb</span> <span class="params">(struct ev_loop *loop, ev_stat *w, <span class="keyword">int</span> revents)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">puts</span> (<span class="string">"Bye."</span>);</span><br><span class="line">  ev_break(loop, EVBREAK_ALL);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// 可以使用已定义的宏来获取默认的事件循环, 当然你也可以根据自己的需求创建指定的.</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">ev_loop</span> *<span class="title">loop</span> = <span class="title">EV_DEFAULT</span>;</span></span><br><span class="line"></span><br><span class="line">  ev_stat estat;</span><br><span class="line">  ev_stat_init(&amp;estat, stat_cb, <span class="string">"v.log"</span>, <span class="number">0.</span>);</span><br><span class="line">  ev_stat_start(loop, &amp;estat);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 开始运行事件循环</span></span><br><span class="line">  ev_run (loop, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果事件循环退出, 那将会执行到这里.</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
         <div id="react-support-footer-root"></div>
       </div>
     </div>
