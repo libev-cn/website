@@ -46,7 +46,7 @@
 <p>配置<code>ev_child</code>观察<code>pid</code>指向的子进程ID的状态变化.可以在回调函数里通过观察<code>rstatus</code>成员来查看状态(使用<code>sys/wait.h</code>中的宏并查看您的系统<code>waitpid</code>文档), <code>rpid</code>成员包含了导致变换的进程<code>ID</code>. <code>trace</code>则必须是<code>0</code>或者<code>1</code>.<br><code>trace</code>为<code>0</code>表示仅关注进程终止的状态.<br><code>trace</code>为<code>1</code>表示仅关注进程暂停、继续的状态.</p>
 </blockquote>
 <h3 id="int-pid-read-only"><a href="#int-pid-read-only" class="headerlink" title="int pid [read-only]"></a>int pid [read-only]</h3><blockquote>
-<p>表示关注的<code>pid</code>; 为<code>0</code>表示监视所有资金进程.</p>
+<p>表示关注的<code>pid</code>; 为<code>0</code>表示监视所有子进程.</p>
 </blockquote>
 <h3 id="int-rpid-read-only"><a href="#int-rpid-read-only" class="headerlink" title="int rpid [read-only]"></a>int rpid [read-only]</h3><blockquote>
 <p>表示检测到状态变更的子进程<code>ID</code>.</p>

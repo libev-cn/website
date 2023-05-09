@@ -36,7 +36,7 @@
         <h2 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h2><p>  <code>Libev</code>的事件循环对象由<code>struct ev_loop</code>定义.</p>
 <h2 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h2><h3 id="1-struct-ev-loop-ev-default-loop-unsigned-int-flags"><a href="#1-struct-ev-loop-ev-default-loop-unsigned-int-flags" class="headerlink" title="1. struct ev_loop *ev_default_loop (unsigned int flags)"></a>1. struct ev_loop *ev_default_loop (unsigned int flags)</h3><p>  此函数将返回”<strong>默认</strong>“的<code>ev_loop</code>对象并初始化, 如果您不知道使用哪个事件循环, 请使用这个函数返回的<code>ev_loop</code>对象(或通过EV_DEFAULT宏).</p>
 <p>  如果<code>ev_loop</code>已经被初始化, 那么再(多)次调用都只会简单返回同一个对象(即使<code>flags</code>不同). 如果尚未初始化, 那么将会根据<code>flags</code>创建它.</p>
-<p>  注意: 此函数不是线程安全的. 所以, 要在多线程使用的时候必须加上互斥锁保证操作的原子性(虽然这种情况极少). 同时”<strong>缺省</strong>“的<code>ev_loop</code>对象才可以处理<code>ev_child</code>.</p>
+<p>  <strong>注意</strong>: 此函数不是线程安全的. 所以, 要在多线程使用的时候必须加上互斥锁保证操作的原子性(虽然这种情况极少). 同时”<strong>缺省</strong>“的<code>ev_loop</code>对象才可以处理<code>ev_child</code>.</p>
 <p>  示例: </p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!ev_default_loop (<span class="number">0</span>))</span><br><span class="line">  fatal (<span class="string">"could not initialise libev, bad $LIBEV_FLAGS in environment?"</span>);</span><br></pre></td></tr></table></figure>
 <p>  限制<code>Libev</code>仅使用<code>select</code>与<code>poll</code>后端同时忽略环境配置的示例:</p>
